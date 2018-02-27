@@ -109,7 +109,13 @@
 			"path": "github.com/smartystreets/goconvey/web/server/watch",
 			"revision": "e5b2b7c9111590d019a696c7800593f666e1a7f4",
 			"revisionTime": "2017-08-25T22:14:26Z"
+		},
+		{
+			"checksumSHA1": "AnKBN2Q4AWaSNb0JyINBQbnpxGM=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "7f97868eec74b32b0982dd158a51a446d1da7eb5",
+			"revisionTime": "2018-02-23T19:12:37Z"
 		}
 	],
-	"rootPath": "geochat"
+	"rootPath": "georadis"
 }
