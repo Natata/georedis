@@ -1,4 +1,4 @@
-package georedis
+package georadis
 
 //Distance unit
 const (
