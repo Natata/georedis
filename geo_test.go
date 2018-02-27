@@ -10,7 +10,8 @@ import (
 
 func TestGeo(t *testing.T) {
 	Convey("test geo basic functions", t, func() {
-		pool := NewPool()
+		pool, err := NewPool("config_test.json")
+		So(err, ShouldBeNil)
 		gc := NewGeo(pool)
 
 		k := "yoyo"
@@ -18,7 +19,7 @@ func TestGeo(t *testing.T) {
 			NewMetaData("a1", 23.1, 100.7),
 			NewMetaData("a2", 23.9, 100.8),
 		}
-		err := gc.Set(k, data)
+		err = gc.Set(k, data)
 		So(err, ShouldBeNil)
 
 		actualData, err := gc.Get(k, []string{"a1", "a2", "b1"})
