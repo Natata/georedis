@@ -1,4 +1,4 @@
-package geochat
+package georedis
 
 //Distance unit
 const (

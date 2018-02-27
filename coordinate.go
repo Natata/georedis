@@ -1,4 +1,4 @@
-package geochat
+package georadis
 
 // Coordinate present geo location
 type Coordinate struct {

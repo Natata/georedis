@@ -1,4 +1,4 @@
-package geochat
+package georadis
 
 // MetaData present the Coordinate and the key of data
 type MetaData struct {

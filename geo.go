@@ -1,4 +1,4 @@
-package geochat
+package georadis
 
 import (
 	"fmt"
