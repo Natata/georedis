@@ -42,7 +42,7 @@ func (s *Geo) Add(key string, data []*Member) error {
 // Pos gets the meta data by key
 // returned meta data hase the same order of names
 // leave nil for the keys have no data
-func (s *Geo) Pos(key string, names []string) ([]*Member, error) {
+func (s *Geo) Pos(key string, names ...string) ([]*Member, error) {
 	conn := s.pool.Get()
 	defer conn.Close()
 
@@ -55,7 +55,6 @@ func (s *Geo) Pos(key string, names []string) ([]*Member, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("GEOPOS result: %v", r)
 
 	// create meta data
 	data := make([]*Member, len(r))
@@ -63,7 +62,7 @@ func (s *Geo) Pos(key string, names []string) ([]*Member, error) {
 		if r[i] == nil {
 			log.Printf("no data for %v", names[i])
 		} else {
-			data[i] = NewMember(names[i], r[i][lonIdx], r[i][latIdx])
+			data[i] = NewMember(names[i], r[i][latIdx], r[i][lonIdx])
 		}
 	}
 
@@ -71,12 +70,12 @@ func (s *Geo) Pos(key string, names []string) ([]*Member, error) {
 }
 
 // RadiusByName find nearby members of member
+// the result include the name itself
 func (s *Geo) RadiusByName(key string, name string, radius int, unit string, options ...Option) ([]*Neighbor, error) {
-	mems, err := s.Pos(key, []string{name})
+	mems, err := s.Pos(key, name)
 	if err != nil {
 		return nil, err
 	}
-
 	if len(mems) != 1 {
 		return nil, fmt.Errorf("%v not exist in the key %v", name, key)
 	}
@@ -85,7 +84,6 @@ func (s *Geo) RadiusByName(key string, name string, radius int, unit string, opt
 	if err != nil {
 		return nil, err
 	}
-
 	return ns, nil
 }
 
@@ -101,14 +99,12 @@ func (s *Geo) Radius(key string, Coord Coordinate, radius int, unit string, opti
 	for _, opt := range options {
 		args = append(args, optMap[opt])
 	}
-	fmt.Println("args: ", args)
 
 	// execute command
 	r, err := conn.Do("GEORADIUS", args...)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("GEORADIUS result: %v", r)
 
 	return rawToNeighbors(r, options...)
 }
@@ -122,7 +118,6 @@ func (s *Geo) Dist(key, a, b string, u Unit) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Printf("GEODIST result: %v", r)
 
 	v := reflect.ValueOf(r)
 	f, err := toFloat64(v)

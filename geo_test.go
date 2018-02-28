@@ -26,10 +26,11 @@ func TestGeoSetGet(t *testing.T) {
 		err = geo.Add(k, testMember)
 		So(err, ShouldBeNil)
 
-		actualData, err := geo.Pos(k, []string{"a1", "a2", "b1"})
+		actualData, err := geo.Pos(k, "a1", "a2", "b1")
 		So(err, ShouldBeNil)
 		So(len(actualData), ShouldEqual, 3)
 		So(actualData[2], ShouldBeNil)
+		So(actualData[0].Coord.Lat, ShouldAlmostEqual, 23.1, .0001)
 	})
 }
 
