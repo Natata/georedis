@@ -1,11 +1,14 @@
 package georadis
 
+// Unit is the unit of distance
+type Unit = string
+
 //Distance unit
 const (
-	M  = "m"
-	KM = "km"
-	Mi = "mi"
-	Ft = "ft"
+	M  Unit = "m"
+	KM Unit = "km"
+	Mi Unit = "mi"
+	Ft Unit = "ft"
 )
 
 // Option is the georedius option

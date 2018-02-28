@@ -3,6 +3,7 @@ package georadis
 import (
 	"fmt"
 	"log"
+	"reflect"
 
 	"github.com/garyburd/redigo/redis"
 )
@@ -93,5 +94,22 @@ func (s *Geo) Neighbors(key string, Coord Coordinate, radius int, unit string, o
 	return rawToNeighbors(r, options...)
 }
 
-// Distance cc
-func (s *Geo) Distance() {}
+// Dist cc
+func (s *Geo) Dist(key, a, b string, u Unit) (float64, error) {
+	conn := s.pool.Get()
+	defer conn.Close()
+
+	r, err := conn.Do("GEODIST", key, a, b, u)
+	if err != nil {
+		return 0, err
+	}
+	log.Printf("GEODIST result: %v", r)
+
+	v := reflect.ValueOf(r)
+	f, err := toFloat64(v)
+	if err != nil {
+		return 0, err
+	}
+
+	return f, nil
+}
