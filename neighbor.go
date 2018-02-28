@@ -33,6 +33,7 @@ func NewNeighborData(raw reflect.Value, opts ...Option) (*NeighborData, error) {
 
 	transformers := []func(v reflect.Value) error{
 		func(v reflect.Value) error { // name
+			fmt.Println("parse name")
 			name, err := toString(unpackValue(v))
 			if err != nil {
 				return err
@@ -42,6 +43,7 @@ func NewNeighborData(raw reflect.Value, opts ...Option) (*NeighborData, error) {
 			return nil
 		},
 		func(v reflect.Value) error { // distance
+			fmt.Println("parse distance")
 			dist, err := toFloat64(unpackValue(v))
 			if err != nil {
 				return err
@@ -51,12 +53,14 @@ func NewNeighborData(raw reflect.Value, opts ...Option) (*NeighborData, error) {
 			return nil
 		},
 		func(v reflect.Value) error { // hash (int)
+			fmt.Println("parse hash")
 			hash := toInt64(unpackValue(v))
 			fmt.Println("hash: ", hash)
 			nd.Hash = hash
 			return nil
 		},
 		func(v reflect.Value) error { // coordinate
+			fmt.Println("parse coordinate")
 			fmt.Println(v)
 			coord, err := toCoordinate(unpackValue(v))
 			if err != nil {
@@ -72,7 +76,7 @@ func NewNeighborData(raw reflect.Value, opts ...Option) (*NeighborData, error) {
 	ckTab := make([]bool, 4)
 	ckTab[0] = true
 	for _, opt := range opts {
-		fmt.Println("has opt: ", opt)
+		fmt.Println("has opt: ", optMap[opt])
 		ckTab[opt+1] = true
 	}
 	i := 0

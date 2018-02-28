@@ -12,10 +12,10 @@ const (
 type Option = int
 
 const (
-	// WithHash returns the value with geohash
-	WithHash Option = iota
 	// WithDist returns the distance between the location to neighbor
-	WithDist
+	WithDist Option = iota
+	// WithHash returns the value with geohash
+	WithHash
 	// WithCoord returns the coordinate of nieghbor
 	WithCoord
 )
@@ -25,3 +25,9 @@ const (
 	lonIdx = iota
 	latIdx
 )
+
+var optMap = map[Option]string{
+	WithDist:  "WITHDIST",
+	WithHash:  "WITHHASH",
+	WithCoord: "WITHCOORD",
+}

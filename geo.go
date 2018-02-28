@@ -78,9 +78,8 @@ func (s *Geo) Neighbors(key string, Coord Coordinate, radius int, unit string, o
 	args := []interface{}{key, Coord.Lon, Coord.Lat, radius, unit}
 
 	// set options
-	optsDict := []string{"WITHHASH", "WITHDIST", "WITHCOORD"}
 	for _, opt := range options {
-		args = append(args, optsDict[opt])
+		args = append(args, optMap[opt])
 	}
 	fmt.Println("args: ", args)
 
@@ -93,3 +92,6 @@ func (s *Geo) Neighbors(key string, Coord Coordinate, radius int, unit string, o
 
 	return rawToNeighbors(r, options...)
 }
+
+// Distance cc
+func (s *Geo) Distance() {}
