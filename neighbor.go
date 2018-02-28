@@ -142,3 +142,22 @@ func toCoordinate(v reflect.Value) (Coordinate, error) {
 
 	return coord, nil
 }
+
+func rawToNeighbors(r interface{}, options ...Option) ([]*NeighborData, error) {
+	v := reflect.ValueOf(r)
+
+	if v.Kind() != reflect.Slice {
+		return nil, fmt.Errorf("wrong type: %v", v.Kind())
+	}
+
+	results := make([]*NeighborData, v.Len())
+	var err error
+	for i := 0; i < v.Len(); i++ {
+		results[i], err = NewNeighborData(unpackValue(v.Index(i)), options...)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return results, nil
+}
