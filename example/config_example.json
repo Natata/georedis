@@ -1,0 +1,12 @@
+{
+    "idle_conn": 5,
+    "active_conn": 10,
+    "protocol": "tcp",
+    "addr": ":6379",
+    "db": 0,
+    "tob_timeout": "1m",
+    "idle_timeout": "300s",
+    "conn_timeout": "6000ms",
+    "read_timeout": "6000ms",
+    "write_timeout": "6000ms"
+}

@@ -1,9 +1,9 @@
 package main
 
-import "georedis"
+import "github.com/Natata/georedis"
 
 func main() {
-	configFilePath := "../config_test.json"
+	configFilePath := "config_example.json"
 	pool, _ := georedis.NewPool(configFilePath)
 	geo := georedis.NewGeo(pool)
 	key := "japan"
