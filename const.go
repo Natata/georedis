@@ -1,4 +1,4 @@
-package georadis
+package georedis
 
 // Unit is the unit of distance
 type Unit = string

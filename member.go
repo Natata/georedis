@@ -1,4 +1,4 @@
-package georadis
+package georedis
 
 // Member present the Coordinate and the key of data
 type Member struct {

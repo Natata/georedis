@@ -1,4 +1,4 @@
-package georadis
+package georedis
 
 import (
 	"fmt"

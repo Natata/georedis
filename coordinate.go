@@ -1,4 +1,4 @@
-package georadis
+package georedis
 
 // Coordinate present geo location
 type Coordinate struct {
