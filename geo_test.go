@@ -107,3 +107,25 @@ func TestGeoDist(t *testing.T) {
 		So(r, ShouldAlmostEqual, 89.5638, .001)
 	})
 }
+
+func TestGeoPos(t *testing.T) {
+	Convey("test geopos", t, func() {
+		pool, _ := NewPool(testConfigFile)
+		geo := NewGeo(pool)
+		k := "yoyo"
+		data := []*MetaData{
+			NewMetaData("a1", 23.1, 100.7),
+			NewMetaData("a2", 23.9, 100.8),
+		}
+		err := geo.Set(k, data)
+		So(err, ShouldBeNil)
+
+		coords, err := geo.GeoPos(k, "a1", "a2")
+		So(err, ShouldBeNil)
+		So(len(coords), ShouldEqual, 2)
+		So(coords[0].Lat, ShouldAlmostEqual, 23.1, .001)
+		So(coords[0].Lon, ShouldAlmostEqual, 100.7, .001)
+		So(coords[1].Lat, ShouldAlmostEqual, 23.9, .001)
+		So(coords[1].Lon, ShouldAlmostEqual, 100.8, .001)
+	})
+}

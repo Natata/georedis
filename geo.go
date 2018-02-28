@@ -113,3 +113,30 @@ func (s *Geo) Dist(key, a, b string, u Unit) (float64, error) {
 
 	return f, nil
 }
+
+// GeoPos cc
+func (s *Geo) GeoPos(key string, list ...string) ([]Coordinate, error) {
+	conn := s.pool.Get()
+	defer conn.Close()
+
+	args := []interface{}{key}
+	for _, l := range list {
+		args = append(args, l)
+	}
+	r, err := conn.Do("GEOPOS", args...)
+	if err != nil {
+		return nil, err
+	}
+
+	v := reflect.ValueOf(r)
+	coords := make([]Coordinate, len(list))
+	for i := 0; i < v.Len(); i++ {
+		pos := unpackValue(v.Index(i))
+		coord, err := toCoordinate(pos)
+		if err != nil {
+			return nil, err
+		}
+		coords[i] = coord
+	}
+	return coords, nil
+}
