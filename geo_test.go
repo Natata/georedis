@@ -129,3 +129,23 @@ func TestGeoPos(t *testing.T) {
 		So(coords[1].Lon, ShouldAlmostEqual, 100.8, .001)
 	})
 }
+
+func TestGeoHash(t *testing.T) {
+	Convey("test geohash", t, func() {
+		pool, _ := NewPool(testConfigFile)
+		geo := NewGeo(pool)
+		k := "yoyo"
+		data := []*MetaData{
+			NewMetaData("a1", 23.1, 100.7),
+			NewMetaData("a2", 23.9, 100.8),
+		}
+		err := geo.Set(k, data)
+		So(err, ShouldBeNil)
+
+		hashs, err := geo.GeoHash(k, "a1", "a2")
+		So(err, ShouldBeNil)
+		So(len(hashs), ShouldEqual, 2)
+		So(hashs[0], ShouldEqual, "whpe7mpx200")
+		So(hashs[1], ShouldEqual, "whpxvyb7d50")
+	})
+}

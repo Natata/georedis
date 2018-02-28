@@ -140,3 +140,29 @@ func (s *Geo) GeoPos(key string, list ...string) ([]Coordinate, error) {
 	}
 	return coords, nil
 }
+
+// GeoHash return the geohash of place
+func (s *Geo) GeoHash(key string, list ...string) ([]string, error) {
+	conn := s.pool.Get()
+	defer conn.Close()
+
+	args := []interface{}{key}
+	for _, l := range list {
+		args = append(args, l)
+	}
+	r, err := conn.Do("GEOHASH", args...)
+	if err != nil {
+		return nil, err
+	}
+	v := reflect.ValueOf(r)
+	hashs := make([]string, len(list))
+	for i := 0; i < v.Len(); i++ {
+		hashv := unpackValue(v.Index(i))
+		hash, err := toString(hashv)
+		if err != nil {
+			return nil, err
+		}
+		hashs[i] = hash
+	}
+	return hashs, nil
+}
