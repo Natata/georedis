@@ -20,8 +20,8 @@ func NewGeo(pool *redis.Pool) *Geo {
 	}
 }
 
-// Set sets key and related meta data to redis
-func (s *Geo) Set(key string, data []*MetaData) error {
+// Add adds key and related meta data to redis
+func (s *Geo) Add(key string, data []*Member) error {
 
 	// TODO: check lat, lon validate. For now, redis would check the coordinate itself
 
@@ -29,8 +29,8 @@ func (s *Geo) Set(key string, data []*MetaData) error {
 	defer conn.Close()
 
 	for _, d := range data {
-		r, err := conn.Do("GEOADD", key, d.Coord.Lon, d.Coord.Lat, d.DKey)
-		log.Printf("add key %v, data: %v, r: %v, err: %v", key, d, r, err)
+		r, err := conn.Do("GEOADD", key, d.Coord.Lon, d.Coord.Lat, d.Name)
+		log.Printf("add data: %v, r: %v, err: %v", d, r, err)
 		if err != nil {
 			return err
 		}
@@ -39,17 +39,17 @@ func (s *Geo) Set(key string, data []*MetaData) error {
 	return nil
 }
 
-// Get gets the meta data by key
-// returned meta data hase the same order of dKeys
+// Pos gets the meta data by key
+// returned meta data hase the same order of names
 // leave nil for the keys have no data
-func (s *Geo) Get(key string, dKeys []string) ([]*MetaData, error) {
+func (s *Geo) Pos(key string, names []string) ([]*Member, error) {
 	conn := s.pool.Get()
 	defer conn.Close()
 
 	// get data from redis
 	args := []interface{}{key}
-	for i := range dKeys {
-		args = append(args, dKeys[i])
+	for i := range names {
+		args = append(args, names[i])
 	}
 	r, err := redis.Positions(conn.Do("GEOPOS", args...))
 	if err != nil {
@@ -58,20 +58,39 @@ func (s *Geo) Get(key string, dKeys []string) ([]*MetaData, error) {
 	log.Printf("GEOPOS result: %v", r)
 
 	// create meta data
-	data := make([]*MetaData, len(r))
+	data := make([]*Member, len(r))
 	for i := range r {
 		if r[i] == nil {
-			log.Printf("no data for %v", dKeys[i])
+			log.Printf("no data for %v", names[i])
 		} else {
-			data[i] = NewMetaData(dKeys[i], r[i][lonIdx], r[i][latIdx])
+			data[i] = NewMember(key, names[i], r[i][lonIdx], r[i][latIdx])
 		}
 	}
 
 	return data, nil
 }
 
-// Neighbors find the neighbor
-func (s *Geo) Neighbors(key string, Coord Coordinate, radius int, unit string, options ...Option) ([]*NeighborData, error) {
+// RadiusByName find nearby members of member
+func (s *Geo) RadiusByName(key string, name string, radius int, unit string, options ...Option) ([]*Neighbor, error) {
+	mems, err := s.Pos(key, []string{name})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(mems) != 1 {
+		return nil, fmt.Errorf("%v not exist in the key %v", name, key)
+	}
+
+	ns, err := s.Radius(key, mems[0].Coord, radius, unit, options...)
+	if err != nil {
+		return nil, err
+	}
+
+	return ns, nil
+}
+
+// Radius find the neighbor with coordinate
+func (s *Geo) Radius(key string, Coord Coordinate, radius int, unit string, options ...Option) ([]*Neighbor, error) {
 	conn := s.pool.Get()
 	defer conn.Close()
 
@@ -114,35 +133,8 @@ func (s *Geo) Dist(key, a, b string, u Unit) (float64, error) {
 	return f, nil
 }
 
-// GeoPos cc
-func (s *Geo) GeoPos(key string, list ...string) ([]Coordinate, error) {
-	conn := s.pool.Get()
-	defer conn.Close()
-
-	args := []interface{}{key}
-	for _, l := range list {
-		args = append(args, l)
-	}
-	r, err := conn.Do("GEOPOS", args...)
-	if err != nil {
-		return nil, err
-	}
-
-	v := reflect.ValueOf(r)
-	coords := make([]Coordinate, len(list))
-	for i := 0; i < v.Len(); i++ {
-		pos := unpackValue(v.Index(i))
-		coord, err := toCoordinate(pos)
-		if err != nil {
-			return nil, err
-		}
-		coords[i] = coord
-	}
-	return coords, nil
-}
-
-// GeoHash return the geohash of place
-func (s *Geo) GeoHash(key string, list ...string) ([]string, error) {
+// Hash return the geohash of place
+func (s *Geo) Hash(key string, list ...string) ([]string, error) {
 	conn := s.pool.Get()
 	defer conn.Close()
 

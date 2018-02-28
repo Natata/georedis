@@ -4,32 +4,30 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 )
 
-// NeighborData present the data of a neighbor
-type NeighborData struct {
-	Name  string
-	Dist  float64
-	Coord Coordinate
-	Hash  int64
+// Neighbor is member with the distance and geohash
+type Neighbor struct {
+	Member
+	Dist float64
+	Hash int64
 }
 
-// NewNeighborData transfers the raw value from GEOREDIUS to NeighborData
-func NewNeighborData(raw reflect.Value, opts ...Option) (*NeighborData, error) {
+// NewNeighbor transfers the raw value from GEOREDIUS to Member
+func NewNeighbor(raw reflect.Value, opts ...Option) (*Neighbor, error) {
 
 	// no option, only slice of string
 	if len(opts) == 0 {
 		name, err := toString(unpackValue(raw))
 		log.Printf("no options, name: %v", name)
-		return &NeighborData{Name: name}, err
+		return &Neighbor{Member: Member{Name: name}}, err
 	}
 
 	if raw.Kind() != reflect.Slice {
 		return nil, fmt.Errorf("new neighbor data fail: %v", raw.Kind())
 	}
 
-	nd := &NeighborData{}
+	nb := &Neighbor{}
 
 	transformers := []func(v reflect.Value) error{
 		func(v reflect.Value) error { // name
@@ -39,7 +37,7 @@ func NewNeighborData(raw reflect.Value, opts ...Option) (*NeighborData, error) {
 				return err
 			}
 			fmt.Println("name: ", name)
-			nd.Name = name
+			nb.Name = name
 			return nil
 		},
 		func(v reflect.Value) error { // distance
@@ -49,14 +47,14 @@ func NewNeighborData(raw reflect.Value, opts ...Option) (*NeighborData, error) {
 				return err
 			}
 			fmt.Println("dist: ", dist)
-			nd.Dist = dist
+			nb.Dist = dist
 			return nil
 		},
 		func(v reflect.Value) error { // hash (int)
 			fmt.Println("parse hash")
 			hash := toInt64(unpackValue(v))
 			fmt.Println("hash: ", hash)
-			nd.Hash = hash
+			nb.Hash = hash
 			return nil
 		},
 		func(v reflect.Value) error { // coordinate
@@ -68,7 +66,7 @@ func NewNeighborData(raw reflect.Value, opts ...Option) (*NeighborData, error) {
 			}
 			fmt.Println("coord lat: ", coord.Lat)
 			fmt.Println("coord lon: ", coord.Lon)
-			nd.Coord = coord
+			nb.Coord = coord
 			return nil
 		},
 	}
@@ -92,72 +90,5 @@ func NewNeighborData(raw reflect.Value, opts ...Option) (*NeighborData, error) {
 	}
 
 	fmt.Println("Done")
-	return nd, nil
-}
-
-func toString(v reflect.Value) (string, error) {
-	if v.Kind() != reflect.Slice {
-		return "", fmt.Errorf("to string fail: %v", v.Kind())
-	}
-
-	b := v.Bytes()
-	return string(b), nil
-}
-
-func toFloat64(v reflect.Value) (float64, error) {
-	s, err := toString(v)
-	if err != nil {
-		return 0, err
-	}
-
-	f, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return f, nil
-}
-
-func toInt64(v reflect.Value) int64 {
-	i := v.Int()
-	return i
-}
-
-func toCoordinate(v reflect.Value) (Coordinate, error) {
-	if v.Kind() != reflect.Slice || v.Len() != 2 {
-		return Coordinate{}, fmt.Errorf("invalid data format for coordainate, %v", v)
-	}
-
-	var coord Coordinate
-	var err error
-	coord.Lon, err = toFloat64(unpackValue(v.Index(lonIdx)))
-	if err != nil {
-		return coord, err
-	}
-
-	coord.Lat, err = toFloat64(unpackValue(v.Index(latIdx)))
-	if err != nil {
-		return coord, err
-	}
-
-	return coord, nil
-}
-
-func rawToNeighbors(r interface{}, options ...Option) ([]*NeighborData, error) {
-	v := reflect.ValueOf(r)
-
-	if v.Kind() != reflect.Slice {
-		return nil, fmt.Errorf("wrong type: %v", v.Kind())
-	}
-
-	results := make([]*NeighborData, v.Len())
-	var err error
-	for i := 0; i < v.Len(); i++ {
-		results[i], err = NewNeighborData(unpackValue(v.Index(i)), options...)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return results, nil
+	return nb, nil
 }

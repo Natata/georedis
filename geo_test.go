@@ -10,21 +10,23 @@ import (
 
 const testConfigFile = "config_test.json"
 
+var (
+	k          = "yoyo"
+	testMember = []*Member{
+		NewMember(k, "a1", 23.1, 100.7),
+		NewMember(k, "a2", 23.9, 100.8),
+	}
+)
+
 func TestGeoSetGet(t *testing.T) {
 	Convey("test geo basic functions", t, func() {
 		pool, err := NewPool(testConfigFile)
 		So(err, ShouldBeNil)
-		gc := NewGeo(pool)
-
-		k := "yoyo"
-		data := []*MetaData{
-			NewMetaData("a1", 23.1, 100.7),
-			NewMetaData("a2", 23.9, 100.8),
-		}
-		err = gc.Set(k, data)
+		geo := NewGeo(pool)
+		err = geo.Add(k, testMember)
 		So(err, ShouldBeNil)
 
-		actualData, err := gc.Get(k, []string{"a1", "a2", "b1"})
+		actualData, err := geo.Pos(k, []string{"a1", "a2", "b1"})
 		So(err, ShouldBeNil)
 		So(len(actualData), ShouldEqual, 3)
 		So(actualData[2], ShouldBeNil)
@@ -35,26 +37,20 @@ func TestGeoNeighbors(t *testing.T) {
 	Convey("test geo neighbors function", t, func() {
 		pool, err := NewPool(testConfigFile)
 		So(err, ShouldBeNil)
-		gc := NewGeo(pool)
-
-		k := "yoyo"
-		data := []*MetaData{
-			NewMetaData("a1", 23.1, 100.7),
-			NewMetaData("a2", 23.9, 100.8),
-		}
-		err = gc.Set(k, data)
+		geo := NewGeo(pool)
+		err = geo.Add(k, testMember)
 		So(err, ShouldBeNil)
 
 		loc := Coordinate{
 			Lat: 23.09,
 			Lon: 100.69,
 		}
-		results, err := gc.Neighbors(k, loc, 10, KM)
+		results, err := geo.Radius(k, loc, 10, KM)
 		So(err, ShouldBeNil)
 		So(results, ShouldNotBeNil)
 		So(len(results), ShouldEqual, 1)
 
-		results, err = gc.Neighbors(k, loc, 100, KM)
+		results, err = geo.Radius(k, loc, 100, KM)
 		So(err, ShouldBeNil)
 		So(results, ShouldNotBeNil)
 		So(len(results), ShouldEqual, 2)
@@ -65,14 +61,8 @@ func TestGeoNeighborsWithParameter(t *testing.T) {
 	Convey("test geo neighbors function with parameter", t, func() {
 		pool, err := NewPool(testConfigFile)
 		So(err, ShouldBeNil)
-		gc := NewGeo(pool)
-
-		k := "yoyo"
-		data := []*MetaData{
-			NewMetaData("a1", 23.1, 100.7),
-			NewMetaData("a2", 23.9, 100.8),
-		}
-		err = gc.Set(k, data)
+		geo := NewGeo(pool)
+		err = geo.Add(k, testMember)
 		So(err, ShouldBeNil)
 
 		loc := Coordinate{
@@ -80,7 +70,7 @@ func TestGeoNeighborsWithParameter(t *testing.T) {
 			Lon: 100.69,
 		}
 
-		results, err := gc.Neighbors(k, loc, 10, KM, WithHash, WithCoord)
+		results, err := geo.Radius(k, loc, 10, KM, WithHash, WithCoord)
 		So(err, ShouldBeNil)
 		So(results, ShouldNotBeNil)
 		So(len(results), ShouldEqual, 1)
@@ -94,12 +84,7 @@ func TestGeoDist(t *testing.T) {
 	Convey("test dist", t, func() {
 		pool, _ := NewPool(testConfigFile)
 		geo := NewGeo(pool)
-		k := "yoyo"
-		data := []*MetaData{
-			NewMetaData("a1", 23.1, 100.7),
-			NewMetaData("a2", 23.9, 100.8),
-		}
-		err := geo.Set(k, data)
+		err := geo.Add(k, testMember)
 		So(err, ShouldBeNil)
 
 		r, err := geo.Dist(k, "a1", "a2", KM)
@@ -108,41 +93,14 @@ func TestGeoDist(t *testing.T) {
 	})
 }
 
-func TestGeoPos(t *testing.T) {
-	Convey("test geopos", t, func() {
-		pool, _ := NewPool(testConfigFile)
-		geo := NewGeo(pool)
-		k := "yoyo"
-		data := []*MetaData{
-			NewMetaData("a1", 23.1, 100.7),
-			NewMetaData("a2", 23.9, 100.8),
-		}
-		err := geo.Set(k, data)
-		So(err, ShouldBeNil)
-
-		coords, err := geo.GeoPos(k, "a1", "a2")
-		So(err, ShouldBeNil)
-		So(len(coords), ShouldEqual, 2)
-		So(coords[0].Lat, ShouldAlmostEqual, 23.1, .001)
-		So(coords[0].Lon, ShouldAlmostEqual, 100.7, .001)
-		So(coords[1].Lat, ShouldAlmostEqual, 23.9, .001)
-		So(coords[1].Lon, ShouldAlmostEqual, 100.8, .001)
-	})
-}
-
 func TestGeoHash(t *testing.T) {
 	Convey("test geohash", t, func() {
 		pool, _ := NewPool(testConfigFile)
 		geo := NewGeo(pool)
-		k := "yoyo"
-		data := []*MetaData{
-			NewMetaData("a1", 23.1, 100.7),
-			NewMetaData("a2", 23.9, 100.8),
-		}
-		err := geo.Set(k, data)
+		err := geo.Add(k, testMember)
 		So(err, ShouldBeNil)
 
-		hashs, err := geo.GeoHash(k, "a1", "a2")
+		hashs, err := geo.Hash(k, "a1", "a2")
 		So(err, ShouldBeNil)
 		So(len(hashs), ShouldEqual, 2)
 		So(hashs[0], ShouldEqual, "whpe7mpx200")
