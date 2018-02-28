@@ -63,7 +63,7 @@ func (s *Geo) Pos(key string, names []string) ([]*Member, error) {
 		if r[i] == nil {
 			log.Printf("no data for %v", names[i])
 		} else {
-			data[i] = NewMember(key, names[i], r[i][lonIdx], r[i][latIdx])
+			data[i] = NewMember(names[i], r[i][lonIdx], r[i][latIdx])
 		}
 	}
 

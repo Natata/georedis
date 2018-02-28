@@ -13,8 +13,8 @@ const testConfigFile = "config_test.json"
 var (
 	k          = "yoyo"
 	testMember = []*Member{
-		NewMember(k, "a1", 23.1, 100.7),
-		NewMember(k, "a2", 23.9, 100.8),
+		NewMember("a1", 23.1, 100.7),
+		NewMember("a2", 23.9, 100.8),
 	}
 )
 

@@ -7,7 +7,7 @@ type Member struct {
 }
 
 // NewMember create a meta dta
-func NewMember(key, name string, lat, lon float64) *Member {
+func NewMember(name string, lat, lon float64) *Member {
 	return &Member{
 		Name: name,
 		Coord: Coordinate{
