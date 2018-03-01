@@ -27,6 +27,12 @@
 			"revisionTime": "2017-05-03T22:40:06Z"
 		},
 		{
+			"checksumSHA1": "vdLUwBPAX/dtVsKYY8BnTUcyADg=",
+			"path": "github.com/sirupsen/logrus",
+			"revision": "f4ee69125072b22721efbe639bd0da9c9d19b8cc",
+			"revisionTime": "2018-02-28T22:01:33Z"
+		},
+		{
 			"checksumSHA1": "ozRFnFdTG0IjkTE0RkZn71XO4gw=",
 			"path": "github.com/smartystreets/assertions",
 			"revision": "0b37b35ec7434b77e77a4bb29b79677cced992ea",
@@ -109,6 +115,24 @@
 			"path": "github.com/smartystreets/goconvey/web/server/watch",
 			"revision": "e5b2b7c9111590d019a696c7800593f666e1a7f4",
 			"revisionTime": "2017-08-25T22:14:26Z"
+		},
+		{
+			"checksumSHA1": "6U7dCaxxIMjf5V02iWgyAwppczw=",
+			"path": "golang.org/x/crypto/ssh/terminal",
+			"revision": "91a49db82a88618983a78a06c1cbd4e00ab749ab",
+			"revisionTime": "2018-02-28T15:18:34Z"
+		},
+		{
+			"checksumSHA1": "gkW/8/3Zvz/RPG4W6N7Tpzzp6oY=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "f6cff0780e542efa0c8e864dc8fa522808f6a598",
+			"revisionTime": "2018-02-20T20:26:15Z"
+		},
+		{
+			"checksumSHA1": "eQq+ZoTWPjyizS9XalhZwfGjQao=",
+			"path": "golang.org/x/sys/windows",
+			"revision": "f6cff0780e542efa0c8e864dc8fa522808f6a598",
+			"revisionTime": "2018-02-20T20:26:15Z"
 		},
 		{
 			"checksumSHA1": "AnKBN2Q4AWaSNb0JyINBQbnpxGM=",
