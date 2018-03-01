@@ -2,8 +2,9 @@ package georedis
 
 import (
 	"fmt"
-	"log"
 	"reflect"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Neighbor is member with the distance and geohash
@@ -19,11 +20,14 @@ func NewNeighbor(raw reflect.Value, opts ...Option) (*Neighbor, error) {
 	// no option, only slice of string
 	if len(opts) == 0 {
 		name, err := toString(unpackValue(raw))
-		log.Printf("no options, name: %v", name)
 		return &Neighbor{Member: Member{Name: name}}, err
 	}
 
 	if raw.Kind() != reflect.Slice {
+		log.WithFields(log.Fields{
+			"type":     raw.Kind(),
+			"raw data": raw,
+		}).Error("wrong type, want slice")
 		return nil, fmt.Errorf("new neighbor data fail: %v", raw.Kind())
 	}
 
@@ -32,6 +36,7 @@ func NewNeighbor(raw reflect.Value, opts ...Option) (*Neighbor, error) {
 	transformers := []func(v reflect.Value) error{
 		func(v reflect.Value) error { // name
 			name, err := toString(unpackValue(v))
+			log.Debugf("convert to name, raw: %v, error: %v", v, err)
 			if err != nil {
 				return err
 			}
@@ -40,6 +45,7 @@ func NewNeighbor(raw reflect.Value, opts ...Option) (*Neighbor, error) {
 		},
 		func(v reflect.Value) error { // distance
 			dist, err := toFloat64(unpackValue(v))
+			log.Debugf("convert to distance, raw: %v, error: %v", v, err)
 			if err != nil {
 				return err
 			}
@@ -47,12 +53,17 @@ func NewNeighbor(raw reflect.Value, opts ...Option) (*Neighbor, error) {
 			return nil
 		},
 		func(v reflect.Value) error { // hash (int)
+
+			// TODO: handle panic when convert fail
+
 			hash := toInt64(unpackValue(v))
+			log.Debugf("convert to distance, raw: %v", v)
 			nb.Hash = hash
 			return nil
 		},
 		func(v reflect.Value) error { // coordinate
 			coord, err := toCoordinate(unpackValue(v))
+			log.Debugf("convert to coordinate, raw: %v, error: %v", v, err)
 			if err != nil {
 				return err
 			}

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func toString(v reflect.Value) (string, error) {
@@ -58,6 +60,9 @@ func rawToNeighbors(r interface{}, options ...Option) ([]*Neighbor, error) {
 	v := reflect.ValueOf(r)
 
 	if v.Kind() != reflect.Slice {
+		log.WithFields(log.Fields{
+			"type": v.Kind(),
+		}).Error("wrong type, want slice")
 		return nil, fmt.Errorf("wrong type: %v", v.Kind())
 	}
 
@@ -66,8 +71,19 @@ func rawToNeighbors(r interface{}, options ...Option) ([]*Neighbor, error) {
 	for i := 0; i < v.Len(); i++ {
 		results[i], err = NewNeighbor(unpackValue(v.Index(i)), options...)
 		if err != nil {
+			log.WithFields(log.Fields{
+				"error":    err,
+				"raw data": v.Index(i),
+			}).Error("fail to convert raw data to Neighbor type")
 			return nil, err
 		}
+		log.WithFields(log.Fields{
+			"name":      results[i].Name,
+			"latitude":  results[i].Coord.Lat,
+			"longitude": results[i].Coord.Lon,
+			"distance":  results[i].Dist,
+			"hash":      results[i].Hash,
+		}).Info("find neighbor")
 	}
 
 	return results, nil
